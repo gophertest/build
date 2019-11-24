@@ -164,3 +164,39 @@ type LinkArgs struct {
 	// RejectUnsafePackages is "-u"
 	RejectUnsafePackages bool
 }
+
+// Packer provides access to the `go tool pack` tool.
+type Packer interface {
+	// Pack runs the link pack.
+	Pack(args PackArgs) error
+}
+
+// PackOp is the operation to perform on the object file.
+type PackOp int
+
+const (
+	_ = iota
+	// AppendNew passes the operation "c"
+	AppendNew = iota
+	// Print passes the operation "p"
+	Print = iota
+	// Append passes the operation "r"
+	Append = iota
+	// List passes the operation "t"
+	List = iota
+	// Extract passes the operation "x"
+	Extract = iota
+)
+
+// PackArgs passed to Pack.
+type PackArgs struct {
+	WorkingDirectory string
+	Stdout           io.Writer
+	Stderr           io.Writer
+	// Op the operation to perform on the object file.
+	Op PackOp
+	// ObjectFile to operate on
+	ObjectFile string
+	// Names to pass to the operation.
+	Names []string
+}

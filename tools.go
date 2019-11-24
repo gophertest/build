@@ -1,6 +1,7 @@
 package build
 
 import (
+	"fmt"
 	gb "go/build"
 	"os/exec"
 	"path"
@@ -12,6 +13,7 @@ type Tools interface {
 	Assembler
 	Compiler
 	Linker
+	Packer
 }
 
 var (
@@ -20,6 +22,7 @@ var (
 		Assembler: path.Join(gb.ToolDir, "asm"),
 		Compiler:  path.Join(gb.ToolDir, "compile"),
 		Linker:    path.Join(gb.ToolDir, "link"),
+		Packer:    path.Join(gb.ToolDir, "pack"),
 	}
 )
 
@@ -30,6 +33,8 @@ type cmdTools struct {
 	CompilerArgs  []string
 	Linker        string
 	LinkerArgs    []string
+	Packer        string
+	PackerArgs    []string
 }
 
 func (ct *cmdTools) Assemble(args AssembleArgs) error {
@@ -239,6 +244,35 @@ func (ct *cmdTools) Link(args LinkArgs) error {
 		cmdArgs = append(cmdArgs, v)
 	}
 	cmd := exec.Command(ct.Linker, cmdArgs...)
+	cmd.Dir = args.WorkingDirectory
+	cmd.Stdout = args.Stdout
+	cmd.Stderr = args.Stderr
+	return cmd.Run()
+}
+
+func (ct *cmdTools) Pack(args PackArgs) error {
+	cmdArgs := append([]string(nil), ct.PackerArgs...)
+	op := ""
+	switch args.Op {
+	case AppendNew:
+		op = "c"
+	case Print:
+		op = "p"
+	case Append:
+		op = "r"
+	case List:
+		op = "t"
+	case Extract:
+		op = "x"
+	default:
+		return fmt.Errorf("unknown pack operation %#v", args.Op)
+	}
+	cmdArgs = append(cmdArgs, op)
+	cmdArgs = append(cmdArgs, args.ObjectFile)
+	for _, v := range args.Names {
+		cmdArgs = append(cmdArgs, v)
+	}
+	cmd := exec.Command(ct.Packer, cmdArgs...)
 	cmd.Dir = args.WorkingDirectory
 	cmd.Stdout = args.Stdout
 	cmd.Stderr = args.Stderr

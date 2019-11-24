@@ -198,3 +198,95 @@ func TestLinker(t *testing.T) {
 		}
 	}
 }
+
+func TestPacker(t *testing.T) {
+	testCases := []struct {
+		Args     build.PackArgs
+		Expected string
+		Error    string
+	}{
+		{
+			build.PackArgs{
+				Stdout:     &bytes.Buffer{},
+				ObjectFile: "obj",
+				Op:         build.Append,
+				Names:      []string{"a", "b", "c"},
+			},
+			"r obj a b c",
+			"",
+		},
+		{
+			build.PackArgs{
+				Stdout:     &bytes.Buffer{},
+				ObjectFile: "obj",
+				Op:         build.AppendNew,
+				Names:      []string{"a", "b", "c"},
+			},
+			"c obj a b c",
+			"",
+		},
+		{
+			build.PackArgs{
+				Stdout:     &bytes.Buffer{},
+				ObjectFile: "obj",
+				Op:         build.Extract,
+				Names:      []string{"a", "b", "c"},
+			},
+			"x obj a b c",
+			"",
+		},
+		{
+			build.PackArgs{
+				Stdout:     &bytes.Buffer{},
+				ObjectFile: "obj",
+				Op:         build.List,
+				Names:      []string{"a", "b", "c"},
+			},
+			"t obj a b c",
+			"",
+		},
+		{
+			build.PackArgs{
+				Stdout:     &bytes.Buffer{},
+				ObjectFile: "obj",
+				Op:         build.Print,
+				Names:      []string{"a", "b", "c"},
+			},
+			"p obj a b c",
+			"",
+		},
+		{
+			build.PackArgs{
+				Stdout: &bytes.Buffer{},
+			},
+			"",
+			"unknown pack operation 0",
+		},
+	}
+	if os.Getenv("TEST_SUBPROCESS") == "1" {
+		args := []string(nil)
+		for i, v := range os.Args {
+			if v == "--" {
+				args = os.Args[i+1:]
+			}
+		}
+		fmt.Fprint(os.Stdout, strings.Join(args, " "))
+		os.Exit(0)
+	} else {
+		os.Setenv("TEST_SUBPROCESS", "1")
+		defer os.Setenv("TEST_SUBPROCESS", "")
+		for c, tc := range testCases {
+			tools := build.NewCmdTools()
+			tools.Packer = os.Args[0]
+			tools.PackerArgs = []string{"-test.run=TestPacker", "--"}
+			err := tools.Pack(tc.Args)
+			if tc.Error == "" {
+				assert.NoErrorf(t, err, "failed with case %d", c)
+			} else {
+				assert.EqualError(t, err, tc.Error, "failed with case %d", c)
+			}
+			out := tc.Args.Stdout.(*bytes.Buffer)
+			assert.Equalf(t, tc.Expected, out.String(), "failed with case %d", c)
+		}
+	}
+}
