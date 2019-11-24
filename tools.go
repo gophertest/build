@@ -91,8 +91,8 @@ func (ct *cmdTools) Compile(args CompileArgs) error {
 	if args.Concurrency != 0 {
 		cmdArgs = append(cmdArgs, "-D", strconv.Itoa(args.Concurrency))
 	}
-	if args.AsmHeaderOutput != "" {
-		cmdArgs = append(cmdArgs, "-asmhdr", args.AsmHeaderOutput)
+	if args.AsmHeaderFile != "" {
+		cmdArgs = append(cmdArgs, "-asmhdr", args.AsmHeaderFile)
 	}
 	if args.Complete {
 		cmdArgs = append(cmdArgs, "-complete")

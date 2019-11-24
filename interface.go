@@ -60,8 +60,8 @@ type CompileArgs struct {
 	IncludeDirs []string
 	// Concurrency is "-c=int"
 	Concurrency int
-	// AsmHeaderOutput is "-asmhdr string"
-	AsmHeaderOutput string
+	// AsmHeaderFile is "-asmhdr string"
+	AsmHeaderFile string
 	// Complete is "-complete"
 	Complete bool
 	// DynamicLink is "-dynlink"

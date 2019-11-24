@@ -77,7 +77,7 @@ func TestCompiler(t *testing.T) {
 				RelativeImportPath:       "rip",
 				IncludeDirs:              []string{"includeDirA", "includeDirB"},
 				Concurrency:              5,
-				AsmHeaderOutput:          "aho",
+				AsmHeaderFile:            "aho",
 				Complete:                 true,
 				DynamicLink:              true,
 				GoVersion:                "",
