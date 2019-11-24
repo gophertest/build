@@ -55,6 +55,9 @@ func (ct *cmdTools) Assemble(args AssembleArgs) error {
 	if args.DynamicLink {
 		cmdArgs = append(cmdArgs, "-dynlink")
 	}
+	for _, v := range args.Files {
+		cmdArgs = append(cmdArgs, v)
+	}
 	cmd := exec.Command(ct.Assembler, cmdArgs...)
 	cmd.Dir = args.WorkingDirectory
 	cmd.Stdout = args.Stdout
@@ -145,6 +148,9 @@ func (ct *cmdTools) Compile(args CompileArgs) error {
 	if args.SymABIsFile != "" {
 		cmdArgs = append(cmdArgs, "-symabis", args.SymABIsFile)
 	}
+	for _, v := range args.Files {
+		cmdArgs = append(cmdArgs, v)
+	}
 	cmd := exec.Command(ct.Compiler, cmdArgs...)
 	cmd.Dir = args.WorkingDirectory
 	cmd.Stdout = args.Stdout
@@ -228,6 +234,9 @@ func (ct *cmdTools) Link(args LinkArgs) error {
 	}
 	if args.RejectUnsafePackages {
 		cmdArgs = append(cmdArgs, "-u")
+	}
+	for _, v := range args.Files {
+		cmdArgs = append(cmdArgs, v)
 	}
 	cmd := exec.Command(ct.Linker, cmdArgs...)
 	cmd.Dir = args.WorkingDirectory

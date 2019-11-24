@@ -13,6 +13,8 @@ type AssembleArgs struct {
 	WorkingDirectory string
 	Stdout           io.Writer
 	Stderr           io.Writer
+	// Files to assemble.
+	Files []string
 	// TrimPath is "-trimpath string"
 	TrimPath string
 	// OutputFile is "-o string"
@@ -40,6 +42,8 @@ type CompileArgs struct {
 	WorkingDirectory string
 	Stdout           io.Writer
 	Stderr           io.Writer
+	// Files to compile.
+	Files []string
 	// TrimPath is "-trimpath string"
 	TrimPath string
 	// OutputFile is "-o string"
@@ -107,6 +111,8 @@ type LinkArgs struct {
 	WorkingDirectory string
 	Stdout           io.Writer
 	Stderr           io.Writer
+	// Files to link.
+	Files []string
 	// EntrySymbolName is "-E string"
 	EntrySymbolName string
 	// HeaderType is "-H string"

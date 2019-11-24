@@ -26,8 +26,9 @@ func TestAssembler(t *testing.T) {
 				GenSymABIs:  true,
 				Shared:      true,
 				DynamicLink: true,
+				Files:       []string{"a", "b", "c"},
 			},
-			"-trimpath tp -o of -I DirA -I DirB -D A -D B -gensymabis -shared -dynlink",
+			"-trimpath tp -o of -I DirA -I DirB -D A -D B -gensymabis -shared -dynlink a b c",
 		},
 		{
 			build.AssembleArgs{
@@ -95,8 +96,9 @@ func TestCompiler(t *testing.T) {
 				SmallFrames:              true,
 				CompilingStandardLibrary: true,
 				SymABIsFile:              "saf",
+				Files:                    []string{"a", "b", "c"},
 			},
-			"-trimpath tp -o of -B -+ -N -D rip -I includeDirA -I includeDirB -D 5 -asmhdr aho -complete -dynlink -h -importcfg icf -importmap importMapA -importmap importMapB -l -linkobj loof -msan -nolocalimports -p pip -pack -race -shared -smallframes -std -symabis saf",
+			"-trimpath tp -o of -B -+ -N -D rip -I includeDirA -I includeDirB -D 5 -asmhdr aho -complete -dynlink -h -importcfg icf -importmap importMapA -importmap importMapB -l -linkobj loof -msan -nolocalimports -p pip -pack -race -shared -smallframes -std -symabis saf a b c",
 		},
 		{
 			build.CompileArgs{
@@ -162,8 +164,9 @@ func TestLinker(t *testing.T) {
 				Race:                       true,
 				TempDir:                    "td",
 				RejectUnsafePackages:       true,
+				Files:                      []string{"a", "b", "c"},
 			},
-			"-E esn -H ht -I edl -L lpa -L lpb -X sda -X sdb -buildid bi -buildmode bm -extar et -extld el -extldflags elf -f -g -h -importcfg icf -installsuffix is -k fts -libgcc lgcc -linkmode lm -linkshared -msan -o of -pluginpath pp -race -tmpdir td -u",
+			"-E esn -H ht -I edl -L lpa -L lpb -X sda -X sdb -buildid bi -buildmode bm -extar et -extld el -extldflags elf -f -g -h -importcfg icf -installsuffix is -k fts -libgcc lgcc -linkmode lm -linkshared -msan -o of -pluginpath pp -race -tmpdir td -u a b c",
 		},
 		{
 			build.LinkArgs{
