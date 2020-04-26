@@ -6,6 +6,7 @@ import (
 	"os/exec"
 	"path"
 	"strconv"
+	"strings"
 )
 
 // Tools provides interfaces to build tools.
@@ -15,6 +16,10 @@ type Tools interface {
 	Linker
 	Packer
 }
+
+var (
+	DebugLog bool = false
+)
 
 var (
 	// DefaultTools uses tools provided by the current go runtime.
@@ -62,6 +67,10 @@ func (ct *cmdTools) Assemble(args AssembleArgs) error {
 	}
 	for _, v := range args.Files {
 		cmdArgs = append(cmdArgs, v)
+	}
+	if DebugLog {
+		fmt.Printf("cd %s\n", args.WorkingDirectory)
+		fmt.Printf("%s %s\n", ct.Assembler, strings.Join(cmdArgs, " "))
 	}
 	cmd := exec.Command(ct.Assembler, cmdArgs...)
 	cmd.Dir = args.WorkingDirectory
@@ -156,6 +165,10 @@ func (ct *cmdTools) Compile(args CompileArgs) error {
 	for _, v := range args.Files {
 		cmdArgs = append(cmdArgs, v)
 	}
+	if DebugLog {
+		fmt.Printf("cd %s\n", args.WorkingDirectory)
+		fmt.Printf("%s %s\n", ct.Compiler, strings.Join(cmdArgs, " "))
+	}
 	cmd := exec.Command(ct.Compiler, cmdArgs...)
 	cmd.Dir = args.WorkingDirectory
 	cmd.Stdout = args.Stdout
@@ -243,6 +256,10 @@ func (ct *cmdTools) Link(args LinkArgs) error {
 	for _, v := range args.Files {
 		cmdArgs = append(cmdArgs, v)
 	}
+	if DebugLog {
+		fmt.Printf("cd %s\n", args.WorkingDirectory)
+		fmt.Printf("%s %s\n", ct.Linker, strings.Join(cmdArgs, " "))
+	}
 	cmd := exec.Command(ct.Linker, cmdArgs...)
 	cmd.Dir = args.WorkingDirectory
 	cmd.Stdout = args.Stdout
@@ -271,6 +288,10 @@ func (ct *cmdTools) Pack(args PackArgs) error {
 	cmdArgs = append(cmdArgs, args.ObjectFile)
 	for _, v := range args.Names {
 		cmdArgs = append(cmdArgs, v)
+	}
+	if DebugLog {
+		fmt.Printf("cd %s\n", args.WorkingDirectory)
+		fmt.Printf("%s %s\n", ct.Packer, strings.Join(cmdArgs, " "))
 	}
 	cmd := exec.Command(ct.Packer, cmdArgs...)
 	cmd.Dir = args.WorkingDirectory
