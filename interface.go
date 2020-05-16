@@ -53,6 +53,8 @@ type CompileArgs struct {
 	TrimPath string
 	// OutputFile is "-o string"
 	OutputFile string
+	// BuildID is "-buildid string"
+	BuildID string
 	// DisableBoundsChecking is "-B"
 	DisableBoundsChecking bool
 	// CompilingRuntimeLibrary is "-+"
@@ -222,6 +224,6 @@ type BuildIDArgs struct {
 
 	// ObjectFile to read or write BuildID
 	ObjectFile string
-	// Write is true when the BuildID should be updated
+	// Write is "-w"
 	Write bool
 }

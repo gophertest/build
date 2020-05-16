@@ -98,6 +98,7 @@ func TestCompiler(t *testing.T) {
 				Stdout:                   &bytes.Buffer{},
 				TrimPath:                 "tp",
 				OutputFile:               "of",
+				BuildID:                  "buildid",
 				DisableBoundsChecking:    true,
 				CompilingRuntimeLibrary:  true,
 				DisableOptimizations:     true,
@@ -125,7 +126,7 @@ func TestCompiler(t *testing.T) {
 				SymABIsFile:              "saf",
 				Files:                    []string{"a", "b", "c"},
 			},
-			"-trimpath tp -o of -B -+ -N -D rip -I includeDirA -I includeDirB -D 5 -asmhdr aho -complete -dynlink -h -importcfg icf -importmap importMapA -importmap importMapB -l -linkobj loof -msan -nolocalimports -p pip -pack -race -shared -smallframes -std -symabis saf a b c goos goarch go/path go/root 1",
+			"-trimpath tp -o of -buildid buildid -B -+ -N -D rip -I includeDirA -I includeDirB -D 5 -asmhdr aho -complete -dynlink -h -importcfg icf -importmap importMapA -importmap importMapB -l -linkobj loof -msan -nolocalimports -p pip -pack -race -shared -smallframes -std -symabis saf a b c goos goarch go/path go/root 1",
 		},
 		{
 			build.CompileArgs{

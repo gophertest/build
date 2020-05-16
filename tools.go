@@ -153,6 +153,9 @@ func (ct *cmdTools) Compile(args CompileArgs) error {
 	if args.OutputFile != "" {
 		cmdArgs = append(cmdArgs, "-o", args.OutputFile)
 	}
+	if args.BuildID != "" {
+		cmdArgs = append(cmdArgs, "-buildid", args.BuildID)
+	}
 	if args.DisableBoundsChecking {
 		cmdArgs = append(cmdArgs, "-B")
 	}
