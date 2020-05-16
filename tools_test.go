@@ -290,3 +290,19 @@ func TestPacker(t *testing.T) {
 		}
 	}
 }
+
+func TestVersion(t *testing.T) {
+	if os.Getenv("TEST_SUBPROCESS") == "1" {
+		fmt.Fprint(os.Stdout, "go version go99.99.99 linux/amd64")
+		os.Exit(0)
+		return
+	}
+	os.Setenv("TEST_SUBPROCESS", "1")
+	defer os.Setenv("TEST_SUBPROCESS", "")
+	tools := build.NewCmdTools()
+	tools.Go = os.Args[0]
+	tools.GoArgs = []string{"-test.run=TestVersion"}
+	version, err := tools.Version()
+	assert.NoError(t, err)
+	assert.Equal(t, "go version go99.99.99 linux/amd64", version)
+}

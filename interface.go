@@ -1,6 +1,9 @@
 package build
 
-import "io"
+import (
+	gb "go/build"
+	"io"
+)
 
 // Assembler provides access to the `go tool asm` tool.
 type Assembler interface {
@@ -10,6 +13,7 @@ type Assembler interface {
 
 // AssembleArgs passed to Assemble.
 type AssembleArgs struct {
+	Context          gb.Context
 	WorkingDirectory string
 	Stdout           io.Writer
 	Stderr           io.Writer
@@ -39,6 +43,7 @@ type Compiler interface {
 
 // CompileArgs passed to Compile.
 type CompileArgs struct {
+	Context          gb.Context
 	WorkingDirectory string
 	Stdout           io.Writer
 	Stderr           io.Writer
@@ -108,6 +113,7 @@ type Linker interface {
 
 // LinkArgs passed to Link.
 type LinkArgs struct {
+	Context          gb.Context
 	WorkingDirectory string
 	Stdout           io.Writer
 	Stderr           io.Writer
@@ -190,6 +196,7 @@ const (
 
 // PackArgs passed to Pack.
 type PackArgs struct {
+	Context          gb.Context
 	WorkingDirectory string
 	Stdout           io.Writer
 	Stderr           io.Writer

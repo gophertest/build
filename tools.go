@@ -1,12 +1,16 @@
 package build
 
 import (
+	"bytes"
 	"fmt"
 	gb "go/build"
+	"io"
+	"os"
 	"os/exec"
 	"path"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 // Tools provides interfaces to build tools.
@@ -15,6 +19,7 @@ type Tools interface {
 	Compiler
 	Linker
 	Packer
+	Version() (string, error)
 }
 
 var (
@@ -32,6 +37,10 @@ var (
 )
 
 type cmdTools struct {
+	mutex sync.Mutex
+
+	Go            string
+	GoArgs        []string
 	Assembler     string
 	AssemblerArgs []string
 	Compiler      string
@@ -40,6 +49,30 @@ type cmdTools struct {
 	LinkerArgs    []string
 	Packer        string
 	PackerArgs    []string
+
+	version string
+}
+
+func (ct *cmdTools) Version() (string, error) {
+	ct.mutex.Lock()
+	defer ct.mutex.Unlock()
+	if ct.version != "" {
+		return ct.version, nil
+	}
+	cmdArgs := append([]string(nil), ct.GoArgs...)
+	cmdArgs = append(cmdArgs, "version")
+	stdout := &bytes.Buffer{}
+	stderr := &bytes.Buffer{}
+	cmd := exec.Command(ct.Go, cmdArgs...)
+	cmd.Stdout = stdout
+	cmd.Stderr = stderr
+	err := cmd.Run()
+	if err != nil {
+		io.Copy(os.Stderr, stderr)
+		return "", err
+	}
+	ct.version = strings.TrimSpace(stdout.String())
+	return ct.version, nil
 }
 
 func (ct *cmdTools) Assemble(args AssembleArgs) error {
