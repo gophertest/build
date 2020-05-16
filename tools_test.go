@@ -3,6 +3,7 @@ package build_test
 import (
 	"bytes"
 	"fmt"
+	gb "go/build"
 	"os"
 	"strings"
 	"testing"
@@ -18,6 +19,13 @@ func TestAssembler(t *testing.T) {
 	}{
 		{
 			build.AssembleArgs{
+				Context: gb.Context{
+					GOOS:       "goos",
+					GOARCH:     "goarch",
+					GOPATH:     "go/path",
+					GOROOT:     "go/root",
+					CgoEnabled: true,
+				},
 				Stdout:      &bytes.Buffer{},
 				TrimPath:    "tp",
 				OutputFile:  "of",
@@ -28,13 +36,20 @@ func TestAssembler(t *testing.T) {
 				DynamicLink: true,
 				Files:       []string{"a", "b", "c"},
 			},
-			"-trimpath tp -o of -I DirA -I DirB -D A -D B -gensymabis -shared -dynlink a b c",
+			"-trimpath tp -o of -I DirA -I DirB -D A -D B -gensymabis -shared -dynlink a b c goos goarch go/path go/root 1",
 		},
 		{
 			build.AssembleArgs{
+				Context: gb.Context{
+					GOOS:       "goos",
+					GOARCH:     "goarch",
+					GOPATH:     "go/path",
+					GOROOT:     "go/root",
+					CgoEnabled: true,
+				},
 				Stdout: &bytes.Buffer{},
 			},
-			"",
+			"goos goarch go/path go/root 1",
 		},
 	}
 	if os.Getenv("TEST_SUBPROCESS") == "1" {
@@ -44,6 +59,11 @@ func TestAssembler(t *testing.T) {
 				args = os.Args[i+1:]
 			}
 		}
+		args = append(args, os.Getenv("GOOS"))
+		args = append(args, os.Getenv("GOARCH"))
+		args = append(args, os.Getenv("GOPATH"))
+		args = append(args, os.Getenv("GOROOT"))
+		args = append(args, os.Getenv("CGO_ENABLED"))
 		fmt.Fprint(os.Stdout, strings.Join(args, " "))
 		os.Exit(0)
 	} else {
@@ -68,6 +88,13 @@ func TestCompiler(t *testing.T) {
 	}{
 		{
 			build.CompileArgs{
+				Context: gb.Context{
+					GOOS:       "goos",
+					GOARCH:     "goarch",
+					GOPATH:     "go/path",
+					GOROOT:     "go/root",
+					CgoEnabled: true,
+				},
 				Stdout:                   &bytes.Buffer{},
 				TrimPath:                 "tp",
 				OutputFile:               "of",
@@ -98,13 +125,20 @@ func TestCompiler(t *testing.T) {
 				SymABIsFile:              "saf",
 				Files:                    []string{"a", "b", "c"},
 			},
-			"-trimpath tp -o of -B -+ -N -D rip -I includeDirA -I includeDirB -D 5 -asmhdr aho -complete -dynlink -h -importcfg icf -importmap importMapA -importmap importMapB -l -linkobj loof -msan -nolocalimports -p pip -pack -race -shared -smallframes -std -symabis saf a b c",
+			"-trimpath tp -o of -B -+ -N -D rip -I includeDirA -I includeDirB -D 5 -asmhdr aho -complete -dynlink -h -importcfg icf -importmap importMapA -importmap importMapB -l -linkobj loof -msan -nolocalimports -p pip -pack -race -shared -smallframes -std -symabis saf a b c goos goarch go/path go/root 1",
 		},
 		{
 			build.CompileArgs{
+				Context: gb.Context{
+					GOOS:       "goos",
+					GOARCH:     "goarch",
+					GOPATH:     "go/path",
+					GOROOT:     "go/root",
+					CgoEnabled: true,
+				},
 				Stdout: &bytes.Buffer{},
 			},
-			"",
+			"goos goarch go/path go/root 1",
 		},
 	}
 	if os.Getenv("TEST_SUBPROCESS") == "1" {
@@ -114,6 +148,11 @@ func TestCompiler(t *testing.T) {
 				args = os.Args[i+1:]
 			}
 		}
+		args = append(args, os.Getenv("GOOS"))
+		args = append(args, os.Getenv("GOARCH"))
+		args = append(args, os.Getenv("GOPATH"))
+		args = append(args, os.Getenv("GOROOT"))
+		args = append(args, os.Getenv("CGO_ENABLED"))
 		fmt.Fprint(os.Stdout, strings.Join(args, " "))
 		os.Exit(0)
 	} else {
@@ -138,6 +177,13 @@ func TestLinker(t *testing.T) {
 	}{
 		{
 			build.LinkArgs{
+				Context: gb.Context{
+					GOOS:       "goos",
+					GOARCH:     "goarch",
+					GOPATH:     "go/path",
+					GOROOT:     "go/root",
+					CgoEnabled: true,
+				},
 				Stdout:                     &bytes.Buffer{},
 				EntrySymbolName:            "esn",
 				HeaderType:                 "ht",
@@ -166,13 +212,20 @@ func TestLinker(t *testing.T) {
 				RejectUnsafePackages:       true,
 				Files:                      []string{"a", "b", "c"},
 			},
-			"-E esn -H ht -I edl -L lpa -L lpb -X sda -X sdb -buildid bi -buildmode bm -extar et -extld el -extldflags elf -f -g -h -importcfg icf -installsuffix is -k fts -libgcc lgcc -linkmode lm -linkshared -msan -o of -pluginpath pp -race -tmpdir td -u a b c",
+			"-E esn -H ht -I edl -L lpa -L lpb -X sda -X sdb -buildid bi -buildmode bm -extar et -extld el -extldflags elf -f -g -h -importcfg icf -installsuffix is -k fts -libgcc lgcc -linkmode lm -linkshared -msan -o of -pluginpath pp -race -tmpdir td -u a b c goos goarch go/path go/root 1",
 		},
 		{
 			build.LinkArgs{
+				Context: gb.Context{
+					GOOS:       "goos",
+					GOARCH:     "goarch",
+					GOPATH:     "go/path",
+					GOROOT:     "go/root",
+					CgoEnabled: true,
+				},
 				Stdout: &bytes.Buffer{},
 			},
-			"",
+			"goos goarch go/path go/root 1",
 		},
 	}
 	if os.Getenv("TEST_SUBPROCESS") == "1" {
@@ -182,6 +235,11 @@ func TestLinker(t *testing.T) {
 				args = os.Args[i+1:]
 			}
 		}
+		args = append(args, os.Getenv("GOOS"))
+		args = append(args, os.Getenv("GOARCH"))
+		args = append(args, os.Getenv("GOPATH"))
+		args = append(args, os.Getenv("GOROOT"))
+		args = append(args, os.Getenv("CGO_ENABLED"))
 		fmt.Fprint(os.Stdout, strings.Join(args, " "))
 		os.Exit(0)
 	} else {
@@ -207,56 +265,98 @@ func TestPacker(t *testing.T) {
 	}{
 		{
 			build.PackArgs{
+				Context: gb.Context{
+					GOOS:       "goos",
+					GOARCH:     "goarch",
+					GOPATH:     "go/path",
+					GOROOT:     "go/root",
+					CgoEnabled: true,
+				},
 				Stdout:     &bytes.Buffer{},
 				ObjectFile: "obj",
 				Op:         build.Append,
 				Names:      []string{"a", "b", "c"},
 			},
-			"r obj a b c",
+			"r obj a b c goos goarch go/path go/root 1",
 			"",
 		},
 		{
 			build.PackArgs{
+				Context: gb.Context{
+					GOOS:       "goos",
+					GOARCH:     "goarch",
+					GOPATH:     "go/path",
+					GOROOT:     "go/root",
+					CgoEnabled: true,
+				},
 				Stdout:     &bytes.Buffer{},
 				ObjectFile: "obj",
 				Op:         build.AppendNew,
 				Names:      []string{"a", "b", "c"},
 			},
-			"c obj a b c",
+			"c obj a b c goos goarch go/path go/root 1",
 			"",
 		},
 		{
 			build.PackArgs{
+				Context: gb.Context{
+					GOOS:       "goos",
+					GOARCH:     "goarch",
+					GOPATH:     "go/path",
+					GOROOT:     "go/root",
+					CgoEnabled: true,
+				},
 				Stdout:     &bytes.Buffer{},
 				ObjectFile: "obj",
 				Op:         build.Extract,
 				Names:      []string{"a", "b", "c"},
 			},
-			"x obj a b c",
+			"x obj a b c goos goarch go/path go/root 1",
 			"",
 		},
 		{
 			build.PackArgs{
+				Context: gb.Context{
+					GOOS:       "goos",
+					GOARCH:     "goarch",
+					GOPATH:     "go/path",
+					GOROOT:     "go/root",
+					CgoEnabled: true,
+				},
 				Stdout:     &bytes.Buffer{},
 				ObjectFile: "obj",
 				Op:         build.List,
 				Names:      []string{"a", "b", "c"},
 			},
-			"t obj a b c",
+			"t obj a b c goos goarch go/path go/root 1",
 			"",
 		},
 		{
 			build.PackArgs{
+				Context: gb.Context{
+					GOOS:       "goos",
+					GOARCH:     "goarch",
+					GOPATH:     "go/path",
+					GOROOT:     "go/root",
+					CgoEnabled: true,
+				},
 				Stdout:     &bytes.Buffer{},
 				ObjectFile: "obj",
 				Op:         build.Print,
 				Names:      []string{"a", "b", "c"},
 			},
-			"p obj a b c",
+			"p obj a b c goos goarch go/path go/root 1",
 			"",
 		},
 		{
 			build.PackArgs{
+				Context: gb.Context{
+					GOOS:       "goos",
+					GOARCH:     "goarch",
+					GOPATH:     "go/path",
+					GOROOT:     "go/root",
+					CgoEnabled: true,
+				},
 				Stdout: &bytes.Buffer{},
 			},
 			"",
@@ -270,6 +370,11 @@ func TestPacker(t *testing.T) {
 				args = os.Args[i+1:]
 			}
 		}
+		args = append(args, os.Getenv("GOOS"))
+		args = append(args, os.Getenv("GOARCH"))
+		args = append(args, os.Getenv("GOPATH"))
+		args = append(args, os.Getenv("GOROOT"))
+		args = append(args, os.Getenv("CGO_ENABLED"))
 		fmt.Fprint(os.Stdout, strings.Join(args, " "))
 		os.Exit(0)
 	} else {

@@ -75,6 +75,34 @@ func (ct *cmdTools) Version() (string, error) {
 	return ct.version, nil
 }
 
+func (ct *cmdTools) env(buildCtx gb.Context) []string {
+	env := os.Environ()
+	newEnv := make([]string, 0, len(env))
+	for _, v := range env {
+		switch {
+		case strings.HasPrefix(v, "GOARCH"):
+		case strings.HasPrefix(v, "GOOS"):
+		case strings.HasPrefix(v, "GOROOT"):
+		case strings.HasPrefix(v, "GOPATH"):
+		case strings.HasPrefix(v, "CGO_ENABLED"):
+		default:
+			newEnv = append(newEnv, v)
+		}
+	}
+	newEnv = append(newEnv,
+		"GOARCH="+buildCtx.GOARCH,
+		"GOOS="+buildCtx.GOOS,
+		"GOROOT="+buildCtx.GOROOT,
+		"GOPATH="+buildCtx.GOPATH,
+	)
+	if buildCtx.CgoEnabled {
+		newEnv = append(newEnv, "CGO_ENABLED=1")
+	} else {
+		newEnv = append(newEnv, "CGO_ENABLED=0")
+	}
+	return newEnv
+}
+
 func (ct *cmdTools) Assemble(args AssembleArgs) error {
 	cmdArgs := append([]string(nil), ct.AssemblerArgs...)
 	if args.TrimPath != "" {
@@ -106,6 +134,7 @@ func (ct *cmdTools) Assemble(args AssembleArgs) error {
 		fmt.Printf("%s %s\n", ct.Assembler, strings.Join(cmdArgs, " "))
 	}
 	cmd := exec.Command(ct.Assembler, cmdArgs...)
+	cmd.Env = ct.env(args.Context)
 	cmd.Dir = args.WorkingDirectory
 	cmd.Stdout = args.Stdout
 	cmd.Stderr = args.Stderr
@@ -203,6 +232,7 @@ func (ct *cmdTools) Compile(args CompileArgs) error {
 		fmt.Printf("%s %s\n", ct.Compiler, strings.Join(cmdArgs, " "))
 	}
 	cmd := exec.Command(ct.Compiler, cmdArgs...)
+	cmd.Env = ct.env(args.Context)
 	cmd.Dir = args.WorkingDirectory
 	cmd.Stdout = args.Stdout
 	cmd.Stderr = args.Stderr
@@ -294,6 +324,7 @@ func (ct *cmdTools) Link(args LinkArgs) error {
 		fmt.Printf("%s %s\n", ct.Linker, strings.Join(cmdArgs, " "))
 	}
 	cmd := exec.Command(ct.Linker, cmdArgs...)
+	cmd.Env = ct.env(args.Context)
 	cmd.Dir = args.WorkingDirectory
 	cmd.Stdout = args.Stdout
 	cmd.Stderr = args.Stderr
@@ -327,6 +358,7 @@ func (ct *cmdTools) Pack(args PackArgs) error {
 		fmt.Printf("%s %s\n", ct.Packer, strings.Join(cmdArgs, " "))
 	}
 	cmd := exec.Command(ct.Packer, cmdArgs...)
+	cmd.Env = ct.env(args.Context)
 	cmd.Dir = args.WorkingDirectory
 	cmd.Stdout = args.Stdout
 	cmd.Stderr = args.Stderr
