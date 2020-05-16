@@ -207,3 +207,21 @@ type PackArgs struct {
 	// Names to pass to the operation.
 	Names []string
 }
+
+// BuildIDer can read and write BuildID
+type BuildIDer interface {
+	// BuildID either reads or write the BuildID
+	BuildID(args BuildIDArgs) (string, error)
+}
+
+// BuildIDArgs passed to BuildID
+type BuildIDArgs struct {
+	Context          gb.Context
+	WorkingDirectory string
+	Stderr           io.Writer
+
+	// ObjectFile to read or write BuildID
+	ObjectFile string
+	// Write is true when the BuildID should be updated
+	Write bool
+}

@@ -19,6 +19,7 @@ type Tools interface {
 	Compiler
 	Linker
 	Packer
+	BuildIDer
 	Version() (string, error)
 }
 
@@ -33,6 +34,7 @@ var (
 		Compiler:  path.Join(gb.ToolDir, "compile"),
 		Linker:    path.Join(gb.ToolDir, "link"),
 		Packer:    path.Join(gb.ToolDir, "pack"),
+		BuildIDer: path.Join(gb.ToolDir, "buildid"),
 	}
 )
 
@@ -49,6 +51,8 @@ type cmdTools struct {
 	LinkerArgs    []string
 	Packer        string
 	PackerArgs    []string
+	BuildIDer     string
+	BuildIDerArgs []string
 
 	version string
 }
@@ -363,4 +367,27 @@ func (ct *cmdTools) Pack(args PackArgs) error {
 	cmd.Stdout = args.Stdout
 	cmd.Stderr = args.Stderr
 	return cmd.Run()
+}
+
+func (ct *cmdTools) BuildID(args BuildIDArgs) (string, error) {
+	cmdArgs := append([]string(nil), ct.BuildIDerArgs...)
+	if args.Write {
+		cmdArgs = append(cmdArgs, "-w")
+	}
+	cmdArgs = append(cmdArgs, args.ObjectFile)
+	if DebugLog {
+		fmt.Printf("cd %s\n", args.WorkingDirectory)
+		fmt.Printf("%s %s\n", ct.BuildIDer, strings.Join(cmdArgs, " "))
+	}
+	stdout := &bytes.Buffer{}
+	cmd := exec.Command(ct.BuildIDer, cmdArgs...)
+	cmd.Env = ct.env(args.Context)
+	cmd.Dir = args.WorkingDirectory
+	cmd.Stdout = stdout
+	cmd.Stderr = args.Stderr
+	err := cmd.Run()
+	if err != nil {
+		return "", err
+	}
+	return strings.TrimSpace(stdout.String()), nil
 }

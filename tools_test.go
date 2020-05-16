@@ -411,3 +411,74 @@ func TestVersion(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "go version go99.99.99 linux/amd64", version)
 }
+
+func TestBuildID(t *testing.T) {
+	testCases := []struct {
+		Args     build.BuildIDArgs
+		Expected string
+		Error    string
+	}{
+		{
+			build.BuildIDArgs{
+				Context: gb.Context{
+					GOOS:       "goos",
+					GOARCH:     "goarch",
+					GOPATH:     "go/path",
+					GOROOT:     "go/root",
+					CgoEnabled: true,
+				},
+				Stderr:     &bytes.Buffer{},
+				ObjectFile: "obj",
+				Write:      false,
+			},
+			"obj goos goarch go/path go/root 1",
+			"",
+		},
+		{
+			build.BuildIDArgs{
+				Context: gb.Context{
+					GOOS:       "goos",
+					GOARCH:     "goarch",
+					GOPATH:     "go/path",
+					GOROOT:     "go/root",
+					CgoEnabled: true,
+				},
+				Stderr:     &bytes.Buffer{},
+				ObjectFile: "obj",
+				Write:      true,
+			},
+			"-w obj goos goarch go/path go/root 1",
+			"",
+		},
+	}
+	if os.Getenv("TEST_SUBPROCESS") == "1" {
+		args := []string(nil)
+		for i, v := range os.Args {
+			if v == "--" {
+				args = os.Args[i+1:]
+			}
+		}
+		args = append(args, os.Getenv("GOOS"))
+		args = append(args, os.Getenv("GOARCH"))
+		args = append(args, os.Getenv("GOPATH"))
+		args = append(args, os.Getenv("GOROOT"))
+		args = append(args, os.Getenv("CGO_ENABLED"))
+		fmt.Fprint(os.Stdout, strings.Join(args, " "))
+		os.Exit(0)
+	} else {
+		os.Setenv("TEST_SUBPROCESS", "1")
+		defer os.Setenv("TEST_SUBPROCESS", "")
+		for c, tc := range testCases {
+			tools := build.NewCmdTools()
+			tools.BuildIDer = os.Args[0]
+			tools.BuildIDerArgs = []string{"-test.run=TestBuildID", "--"}
+			out, err := tools.BuildID(tc.Args)
+			if tc.Error == "" {
+				assert.NoErrorf(t, err, "failed with case %d", c)
+			} else {
+				assert.EqualError(t, err, tc.Error, "failed with case %d", c)
+			}
+			assert.Equalf(t, tc.Expected, out, "failed with case %d", c)
+		}
+	}
+}
