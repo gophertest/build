@@ -30,6 +30,7 @@ var (
 var (
 	// DefaultTools uses tools provided by the current go runtime.
 	DefaultTools Tools = &cmdTools{
+		Go:        "go",
 		Assembler: path.Join(gb.ToolDir, "asm"),
 		Compiler:  path.Join(gb.ToolDir, "compile"),
 		Linker:    path.Join(gb.ToolDir, "link"),
