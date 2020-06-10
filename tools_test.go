@@ -483,3 +483,55 @@ func TestBuildID(t *testing.T) {
 		}
 	}
 }
+
+func TestBuildCtx(t *testing.T) {
+	if os.Getenv("TEST_SUBPROCESS") == "1" {
+		fmt.Fprint(os.Stdout, `GO111MODULE=""
+GOARCH="amd64"
+GOBIN=""
+GOCACHE="/home/testuser/.cache/go-build"
+GOENV="/home/testuser/.config/go/env"
+GOEXE=""
+GOFLAGS=""
+GOHOSTARCH="amd64"
+GOHOSTOS="linux"
+GOINSECURE=""
+GONOPROXY=""
+GONOSUMDB=""
+GOOS="linux"
+GOPATH="/home/testuser/go"
+GOPRIVATE=""
+GOPROXY="https://proxy.golang.org,direct"
+GOROOT="/usr/local/go1.14"
+GOSUMDB="sum.golang.org"
+GOTMPDIR=""
+GOTOOLDIR="/usr/local/go/pkg/tool/linux_amd64"
+GCCGO="gccgo"
+AR="ar"
+CC="gcc"
+CXX="g++"
+CGO_ENABLED="1"
+GOMOD="/home/testuser/projects/build/go.mod"
+CGO_CFLAGS="-g -O2"
+CGO_CPPFLAGS=""
+CGO_CXXFLAGS="-g -O2"
+CGO_FFLAGS="-g -O2"
+CGO_LDFLAGS="-g -O2"
+PKG_CONFIG="pkg-config"
+GOGCCFLAGS="-fPIC -m64 -pthread -fmessage-length=0 -fdebug-prefix-map=/tmp/go-build12345678=/tmp/go-build -gno-record-gcc-switches"
+`)
+		os.Exit(0)
+		return
+	}
+	os.Setenv("TEST_SUBPROCESS", "1")
+	defer os.Setenv("TEST_SUBPROCESS", "")
+	tools := build.NewCmdTools()
+	tools.Go = os.Args[0]
+	tools.GoArgs = []string{"-test.run=TestBuildCtx"}
+	ctx, err := tools.BuildCtx()
+	assert.NoError(t, err)
+	assert.Equal(t, "linux", ctx.GOOS)
+	assert.Equal(t, "amd64", ctx.GOARCH)
+	assert.Equal(t, "/home/testuser/go", ctx.GOPATH)
+	assert.Equal(t, "/usr/local/go1.14", ctx.GOROOT)
+}

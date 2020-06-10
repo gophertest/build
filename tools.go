@@ -1,6 +1,7 @@
 package build
 
 import (
+	"bufio"
 	"bytes"
 	"fmt"
 	gb "go/build"
@@ -8,6 +9,7 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"regexp"
 	"strconv"
 	"strings"
 	"sync"
@@ -56,6 +58,51 @@ type cmdTools struct {
 	BuildIDerArgs []string
 
 	version string
+}
+
+var envRegex = regexp.MustCompile(`([a-zA-Z0-9_]+)="(.*)"`)
+
+func (ct *cmdTools) BuildCtx() (gb.Context, error) {
+	ctx := gb.Default
+
+	cmdArgs := append([]string(nil), ct.GoArgs...)
+	cmdArgs = append(cmdArgs, "env")
+	stdout := &bytes.Buffer{}
+	stderr := &bytes.Buffer{}
+	cmd := exec.Command(ct.Go, cmdArgs...)
+	cmd.Stdout = stdout
+	cmd.Stderr = stderr
+	err := cmd.Run()
+	if err != nil {
+		io.Copy(os.Stderr, stderr)
+		return ctx, err
+	}
+
+	scanner := bufio.NewScanner(stdout)
+	for scanner.Scan() {
+		values := envRegex.FindStringSubmatch(scanner.Text())
+		if values == nil {
+			continue
+		}
+		key := values[1]
+		value := values[2]
+		switch key {
+		case "GOOS":
+			ctx.GOOS = value
+		case "GOARCH":
+			ctx.GOARCH = value
+		case "GOPATH":
+			ctx.GOPATH = value
+		case "GOROOT":
+			ctx.GOROOT = value
+		}
+	}
+
+	if scanner.Err() != nil {
+		return ctx, scanner.Err()
+	}
+
+	return ctx, nil
 }
 
 func (ct *cmdTools) Version() (string, error) {
