@@ -23,6 +23,7 @@ type Tools interface {
 	Packer
 	BuildIDer
 	Version() (string, error)
+	BuildCtx() (gb.Context, error)
 }
 
 var (
